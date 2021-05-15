@@ -66,14 +66,14 @@ def filter_dataset(X, Y, pos_class, neg_class):
     assert(X.shape[0] == Y.shape[0])
     assert(len(Y.shape) == 1)
 
-    Y = Y.astype(int)
+    Y = Y.astype(int) #数据类型转为int
     
     pos_idx = Y == pos_class
     neg_idx = Y == neg_class        
     Y[pos_idx] = 1
     Y[neg_idx] = -1
-    idx_to_keep = pos_idx | neg_idx
-    X = X[idx_to_keep, ...]
+    idx_to_keep = pos_idx | neg_idx #“或”运算
+    X = X[idx_to_keep, ...] #...表示下标没出现在idx_to_keep中的元素舍弃
     Y = Y[idx_to_keep]    
     return (X, Y)    
 
@@ -85,9 +85,9 @@ def find_distances(target, X, theta=None):
       "X (%s) and target (%s) must have same feature dimension" % (X.shape[1], len(target))
     
     if theta is None:
-        return np.linalg.norm(X - target, axis=1)
+        return np.linalg.norm(X - target, axis=1) #在维度1上计算二范数
     else:
-        theta = np.reshape(theta, -1)
+        theta = np.reshape(theta, -1) #返回theta的一维形式
         
         # Project onto theta
-        return np.abs((X - target).dot(theta))    
+        return np.abs((X - target).dot(theta))  #.dot返回点乘运算结果
