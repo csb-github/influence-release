@@ -27,12 +27,12 @@ from influence.hessians import hessian_vector_product
 from influence.dataset import DataSet
 
 
-def variable(name, shape, initializer):
-    dtype = tf.float32
-    var = tf.get_variable(
+def variable(name, shape, initializer): #tf.get_variable()获取已存在的变量(要求不仅名字，而且初始化方法等各个参数都一样)，
+    dtype = tf.float32                  #如果不存在，就新建一个；可以用各种初始化方法，不用明确指定值。
+    var = tf.get_variable(              #tf.Variable()用于生成一个初始值为initial-value的变量；必须指定初始化值
         name, 
         shape, 
-        initializer=initializer, 
+        initializer=initializer,      #ininializer：如果创建了，则用它来初始化变量，正态分布，均匀分布等等都可
         dtype=dtype)
     return var
 
@@ -58,8 +58,8 @@ def variable_with_weight_decay(name, shape, stddev, wd):
             dtype=dtype))
  
     if wd is not None:
-      weight_decay = tf.multiply(tf.nn.l2_loss(var), wd, name='weight_loss')
-      tf.add_to_collection('losses', weight_decay)
+      weight_decay = tf.multiply(tf.nn.l2_loss(var), wd, name='weight_loss') #tf.nn.l2_loss计算张量误差值 name为给操作取得的一个名字
+      tf.add_to_collection('losses', weight_decay) #把一个变量此处为weight_decay添加到列表中此处为losses
 
     return var
 
@@ -104,12 +104,12 @@ class GenericNeuralNet(object):
             os.makedirs(self.train_dir)
 
         # Initialize session
-        config = tf.ConfigProto()        
+        config = tf.ConfigProto()    #一般用在创建session的时候，用来对session进行参数配置。    
         self.sess = tf.Session(config=config)
         K.set_session(self.sess)
                 
         # Setup input
-        self.input_placeholder, self.labels_placeholder = self.placeholder_inputs()
+        self.input_placeholder, self.labels_placeholder = self.placeholder_inputs() #此函数可以理解为形参，用于定义过程，在执行的时候再赋具体的值
         self.num_train_examples = self.data_sets.train.labels.shape[0]
         self.num_test_examples = self.data_sets.test.labels.shape[0]
         
