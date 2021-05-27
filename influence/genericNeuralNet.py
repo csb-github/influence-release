@@ -116,9 +116,9 @@ class GenericNeuralNet(object):
         # Setup inference and training
         if self.keep_probs is not None:
             self.keep_probs_placeholder = tf.placeholder(tf.float32, shape=(2))
-            self.logits = self.inference(self.input_placeholder, self.keep_probs_placeholder)
+            self.logits = self.inference(self.input_placeholder, self.keep_probs_placeholder) # inference:尽可能地构建好图表，满足促使神经网络向前反馈并做出预测的要求。
         elif hasattr(self, 'inference_needs_labels'):            
-            self.logits = self.inference(self.input_placeholder, self.labels_placeholder)
+            self.logits = self.inference(self.input_placeholder, self.labels_placeholder)  #logits当作softmax步骤前尚未归一化的概率
         else:
             self.logits = self.inference(self.input_placeholder)
 
@@ -126,11 +126,11 @@ class GenericNeuralNet(object):
             self.logits, 
             self.labels_placeholder)
 
-        self.global_step = tf.Variable(0, name='global_step', trainable=False)
+        self.global_step = tf.Variable(0, name='global_step', trainable=False) #创建并初始化一个变量 name为变量名称（可选），trainable为True表示此变量被加入变量列表 
         self.learning_rate = tf.Variable(self.initial_learning_rate, name='learning_rate', trainable=False)
         self.learning_rate_placeholder = tf.placeholder(tf.float32)
-        self.update_learning_rate_op = tf.assign(self.learning_rate, self.learning_rate_placeholder)
-        
+        self.update_learning_rate_op = tf.assign(self.learning_rate, self.learning_rate_placeholder) #将self.learning_rate替换成self.learning_rate_placeholder
+                                                                                                     #sess.run(update)被执行后旧值才能被成功替换
         self.train_op = self.get_train_op(self.total_loss, self.global_step, self.learning_rate)
         self.train_sgd_op = self.get_train_sgd_op(self.total_loss, self.global_step, self.learning_rate)
         self.accuracy_op = self.get_accuracy_op(self.logits, self.labels_placeholder)        
@@ -423,10 +423,9 @@ class GenericNeuralNet(object):
           A scalar int32 tensor with the number of examples (out of batch_size)
           that were predicted correctly.
         """        
-        correct = tf.nn.in_top_k(logits, labels, 1)
-        return tf.reduce_sum(tf.cast(correct, tf.int32)) / tf.shape(labels)[0]
-
-
+        correct = tf.nn.in_top_k(logits, labels, 1) #整个函数的意义就是看pretions中的数据前k个最大的下标是否包含 target中对应位置的数字
+        return tf.reduce_sum(tf.cast(correct, tf.int32)) / tf.shape(labels)[0] #tf.cast()转化数据类型 
+                                                                    #tf.reduce_sum:Computes the sum of elements across dimensions of a tensor默认为零
     def loss(self, logits, labels):
 
         labels = tf.one_hot(labels, depth=self.num_classes)
